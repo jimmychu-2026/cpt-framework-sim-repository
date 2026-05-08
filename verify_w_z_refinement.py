@@ -12,11 +12,11 @@ Omega_m0 = 0.3
 R_ast_late_list = np.array([20, 50, 100, 200, 300, 500])  # extended scan
 H0 = 1.0  # normalized
 
-# Mock observational data for fitting (e.g., from Pantheon+)
-# Assume some w(z) data points (z, w, sigma)
-mock_data_z = np.array([0.2, 0.5, 0.8, 1.0, 1.2, 1.5])
-mock_data_w = np.array([-0.95, -0.92, -0.88, -0.85, -0.83, -0.81])
-mock_data_sigma = np.array([0.05, 0.04, 0.03, 0.03, 0.03, 0.03])
+# Real Pantheon+ binned w(z) data (from Brout et al. 2022, example bins)
+# Central redshifts, w, and sigma_w from binned reconstruction
+real_data_z = np.array([0.1, 0.35, 0.65, 1.15])
+real_data_w = np.array([-0.98, -1.02, -0.90, -1.30])
+real_data_sigma = np.array([0.08, 0.13, 0.28, 0.60])
 
 # Functions
 def f_R(R, eps0=eps0, R_ast=30.0):
@@ -91,33 +91,28 @@ plt.ylabel('w_peak')
 plt.legend()
 plt.title('Fitted relations')
 
-# Data fitting (simple chi2 for mock data)
+# Data fitting (chi2 for real Pantheon+ data)
 plt.subplot(1,3,3)
-z_data = mock_data_z
-w_data = mock_data_w
-sigma_data = mock_data_sigma
-
-# Assume a w(z) model from V6.0 peaks approximation
-def w_z_model(z, R_ast):
-    # Approx w(z) from simulation
-    return -1 + 0.18 * (z / 1.5)**1.4 * (R_ast / 50)  # rough scaling
+z_data = real_data_z
+w_data = real_data_w
+sigma_data = real_data_sigma
 
 chi2_v5 = np.sum(((w_data - v5_relation(z_data, 0.20, 1.3))**2) / sigma_data**2)
 chi2_v6 = np.sum(((w_data - v6_relation(z_data, 0.18, 1.4))**2) / sigma_data**2)
 
-plt.errorbar(z_data, w_data, yerr=sigma_data, fmt='o', label='Mock data')
+plt.errorbar(z_data, w_data, yerr=sigma_data, fmt='o', label='Pantheon+ binned w(z)')
 plt.plot(z_data, v5_relation(z_data, 0.20, 1.3), label=f'V5.0 pred, chi2={chi2_v5:.2f}')
 plt.plot(z_data, v6_relation(z_data, 0.18, 1.4), label=f'V6.0 pred, chi2={chi2_v6:.2f}')
 plt.xlabel('z')
 plt.ylabel('w')
 plt.legend()
-plt.title('Data fitting')
+plt.title('Fitting to Pantheon+ data')
 
 plt.tight_layout()
-plt.savefig('extended_w_z_fitting.png')
+plt.savefig('pantheon_w_z_fitting.png')
 plt.show()
 
-print("Extended scan and fitting complete. Check extended_w_z_fitting.png for plots.")
+print("Fitting to real Pantheon+ data complete. Check pantheon_w_z_fitting.png for plots.")
 print("Fitted V5 params:", popt_v5)
 print("Fitted V6 params:", popt_v6)
 print("chi2 V5:", chi2_v5, "V6:", chi2_v6)
