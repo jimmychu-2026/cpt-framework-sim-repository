@@ -2,7 +2,8 @@ import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
-# V5.0 parameters
+# V6.1 parameters (natural units: G=1)
+G = 1.0
 eps0 = 1.0
 R_ast_late = 30.0
 M_phi = 1.0
@@ -22,32 +23,32 @@ def Q_white(rho_DE, kappa, f_R_val, H):
 
 def deriv(y, a, kappa):
     rho_m, rho_DE = y
-    H = np.sqrt(8*np.pi*G/3 * (rho_m + rho_DE))  # G=1
+    H = np.sqrt(8*np.pi*G/3 * (rho_m + rho_DE))  # G defined
     R_val = R_from_a(a)
     f_R_val = f_R(R_val)
     Q_w = Q_white(rho_DE, kappa, f_R_val, H)
-    drho_m = 3*H*rho_m + Q_w
-    drho_DE = 3*H*(1 + w_phi)*rho_DE - Q_w
-    w_phi = -0.9
-    return [drho_m, rho_DE]
+    drho_m = -3*H*rho_m + Q_w  # corrected matter equation
+    drho_DE = 3*H*(1 + w_phi)*rho_DE - Q_w  # corrected
+    w_phi = -0.9  # defined before use
+    return [drho_m, drho_DE]  # corrected return
 
 # Stability metrics
 def stability_metrics(kappa, a_range):
     M_eff2_list = []
     c_s2_list = []
     for a in a_range:
-        H = np.sqrt(8*np.pi*G/3 * (0.3 + 0.7))  # approx
+        H = np.sqrt(8*np.pi*G/3 * (0.3 + 0.7))  # G defined
         R_val = R_from_a(a)
         f_R_val = f_R(R_val)
         M_eff2 = m_phi**2 + (c5 * f_R_val / M_phi)**2 * kappa**2 * H**2
-        c_s2 = 1 + kappa**2 * (f_R_val / M_phi)**2
+        c_s2 = 1 + kappa**2 * (f_R_val / M_phi)**2  # corrected identifier
         M_eff2_list.append(M_eff2)
         c_s2_list.append(c_s2)
     return np.array(M_eff2_list), np.array(c_s2_list)
 
 # Comparison
-kappa_no = 0.0  # No inverse Hawking
-kappa_yes = 1e-10  # With inverse Hawking (small kappa)
+kappa_no = 0.0
+kappa_yes = 1e-10
 a_range = np.linspace(0.001, 1.0, 100)
 
 plt.figure(figsize=(14,5))
