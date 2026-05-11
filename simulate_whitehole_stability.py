@@ -2,45 +2,45 @@ import numpy as np
 from scipy.integrate import odeint
 import matplotlib.pyplot as plt
 
-# V5.0 parameters (default)
+# V6.1 parameters (natural units: G=1)
+G = 1.0
 eps0 = 1.0
-R_ast_late = 30.0  # in H0^2 units
-M_phi = 1.0  # normalized to M_Pl
+R_ast_late = 30.0
+M_phi = 1.0
 c5 = 1.0
-m_phi = 1e-33  # ~ H0 in eV units, normalized
+m_phi = 1e-33
 Omega_m0 = 0.3
-kappa_white_list = [0.0, 1e-10, 1e-9, 1e-8]  # evaporation strengths
+kappa_white_list = [0.0, 1e-10, 1e-9, 1e-8]
 
 # Functions
 def f_R(R, eps0=eps0, R_ast=R_ast_late):
     return eps0 * np.tanh(R / R_ast)
 
 def R_from_a(a, H0=1.0):
-    return 6 * H0**2 * (1.0 / a**3 + 0.7)  # approx for late universe
+    return 6 * H0**2 * (1.0 / a**3 + 0.7)
 
 def Q_white(rho_DE, kappa, f_R_val, H):
-    return -kappa * f_R_val * H * np.sqrt(np.abs(rho_DE))  # energy loss from DE
+    return -kappa * f_R_val * H * np.sqrt(np.abs(rho_DE))
 
-# ODE system (simplified: rho_m, rho_DE)
 def deriv(y, a, kappa):
     rho_m, rho_DE = y
-    H = np.sqrt(8*np.pi*G/3 * (rho_m + rho_DE))  # G=1
+    H = np.sqrt(8*np.pi*G/3 * (rho_m + rho_DE))  # G defined
     R_val = R_from_a(a)
     f_R_val = f_R(R_val)
     Q_w = Q_white(rho_DE, kappa, f_R_val, H)
-    drho_m = 3*H*rho_m + Q_w  # DE to matter (inverted)
-    drho_DE = 3*H*(1 + w_phi)*rho_DE - Q_w
-    w_phi = -0.9  # approx
-    return [drho_m, rho_DE]
+    drho_m = -3*H*rho_m + Q_w  # corrected matter equation
+    w_phi = -0.9  # defined before use
+    drho_DE = 3*H*(1 + w_phi)*rho_DE - Q_w  # corrected
+    return [drho_m, drho_DE]  # corrected return
 
 # Stability check: estimate M_eff^2 from perturbation
 def stability_check(kappa, a=1.0):
-    H = np.sqrt(8*np.pi*G/3 * (0.3 + 0.7))  # at z=0
+    H = np.sqrt(8*np.pi*G/3 * (0.3 + 0.7))  # G defined
     R_val = R_from_a(a)
     f_R_val = f_R(R_val)
-    M_eff2 = m_phi**2 + (c5 * f_R_val / M_phi)**2 * kappa**2 * H**2  # approx coupling
-    c_s2 = 1 + kappa**2 * (f_R_val / M_phi)**2  # approx
-    return M_eff2 > 0 and c_s^2 > 0
+    M_eff2 = m_phi**2 + (c5 * f_R_val / M_phi)**2 * kappa**2 * H**2
+    c_s2 = 1 + kappa**2 * (f_R_val / M_phi)**2  # corrected identifier
+    return M_eff2 > 0 and c_s2 > 0
 
 # Simulation
 a_range = np.linspace(0.001, 1.0, 100)
