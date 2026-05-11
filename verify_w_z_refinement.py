@@ -44,25 +44,29 @@ def deriv(y, a, kappa=0.0):
     drho_DE = (rho_DE_new - rho_DE) / a  # approx derivative
     return [drho_m, drho_DE]  # corrected return
 
+# Algebraic solver for V6.1 Friedmann (iterative solution for H and R)
+def solve_v61_algebraic(a, rho_m_a, R_ast, H_guess=1.0, tol=1e-6, max_iter=100):
+    H = H_guess
+    for _ in range(max_iter):
+        H_sq = H**2
+        R_val = R_from_a(a)
+        f_R_val = f_R(R_val, R_ast=R_ast)
+        left = 3 - 4*np.pi * f_R_val**2
+        if left <= 0:
+            return np.nan  # pathological case
+        rho_m_pred = left * H_sq * (1 / 3) * 1e-2  # adjusted scaling for demo
+        H_new = np.sqrt(rho_m_a / (left / 3))
+        if abs(H_new - H) < tol:
+            return H_new
+        H = H_new
+    return H
+
 # Relation functions for fitting
 def v5_relation(z, a, b):
     return -1 + a * (z / 1.5)**b
 
 def v6_relation(z, a, b):
     return -1 + a * (z / 1.5)**b
-
-# Algebraic solver for V6.1 Friedmann (simplified iterative)
-def solve_v61_algebraic(a, rho_m_a, R_ast):
-    H_guess = 1.0 / a  # initial guess
-    for _ in range(10):
-        R_val = R_from_a(a)
-        f_R_val = f_R(R_val, R_ast=R_ast)
-        left = 3 - 4*np.pi * f_R_val**2
-        if left > 0:
-            H = np.sqrt(rho_m_a / left)
-        else:
-            H = 0.1  # avoid division by zero
-    return H
 
 # Scan R_ast_late and compute w(z) for each
 a_range = np.logspace(-3, 0, 100)
