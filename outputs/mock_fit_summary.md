@@ -107,10 +107,10 @@ The corresponding information-criterion penalties are still positive:
 - `Delta AIC = +6.356`
 - `Delta BIC = +7.724`
 
-So, for this newer mock dataset, the constrained template is **not yet preferred** by AIC/BIC.
+So, for this broader mock dataset, the constrained template is **not yet preferred** by AIC/BIC.
 
 ### 4. Comparison across datasets
-The earlier toy mock favored a tightly constrained template, whereas the newer broader dataset favors a wider IR suppression shape in the free scan but does not yet provide information-criterion support for the template forms.
+The earlier toy mock favored a tightly constrained template, whereas the newer broader dataset favors a wider IR suppression shape in the free scan but does not yet provide information-criterion support for the reduced or constrained forms.
 
 This indicates that the preferred shape is **dataset-dependent** and that the template family should be scanned over a broader range before drawing a stronger conclusion.
 
