@@ -64,6 +64,8 @@ The latest console output indicates the best-fit region lies at:
 
 This points to a **broader, flatter suppression kernel** than the earlier toy example.
 
+Within the repository's V7 interpretation, this broader and flatter kernel can be read as a sign that the effective LSS time layer is thicker than the linear-time V6.2 template assumes. In that reading, the current template appears somewhat thinner than reality because a curved effective time scale would spread the same IR residual across a wider low-ℓ band.
+
 ---
 
 ## Interpretation
