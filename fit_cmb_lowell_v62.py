@@ -19,7 +19,8 @@ It is intended as a first-pass consistency check for the V6.2 hypothesis.
 
 Outputs
 -------
-- Console: best-fit parameters, chi-squared values, delta chi-squared
+- Console: best-fit parameters, chi-squared values, delta chi-squared,
+  plus simple AIC/BIC model-comparison summaries
 - Figures saved to the output directory:
     lowell_spectrum.png         -- low-ell TT spectrum comparison
     suppression_kernel.png      -- S_ell kernel for best-fit parameters
@@ -28,6 +29,7 @@ Outputs
 """
 
 import argparse
+import math
 import os
 
 import numpy as np
@@ -108,6 +110,18 @@ def chi_squared(cl_model: np.ndarray, cl_obs: np.ndarray, sigma: np.ndarray) -> 
     return float(np.sum(((cl_model - cl_obs) / sigma) ** 2))
 
 
+def information_criteria(chi2: float, n_points: int, n_params: int) -> tuple[float, float]:
+    """Return (AIC, BIC) for a model.
+
+    AIC = chi2 + 2k
+    BIC = chi2 + k ln(N)
+    where k is the number of fitted parameters and N is the number of data points.
+    """
+    aic = float(chi2 + 2.0 * n_params)
+    bic = float(chi2 + n_params * math.log(n_points))
+    return aic, bic
+
+
 # ---------------------------------------------------------------------------
 # Grid scan
 # ---------------------------------------------------------------------------
@@ -164,7 +178,6 @@ def angular_correlation(cl_values: np.ndarray, ells: np.ndarray, theta_deg: np.n
     cos_theta = np.cos(np.radians(theta_deg))
     result = np.zeros_like(cos_theta)
     for ell, cl in zip(ells, cl_values):
-        # Build coefficient array of length ell+1 (zero-indexed)
         coeffs = np.zeros(int(ell) + 1)
         coeffs[-1] = (2.0 * ell + 1.0) * cl
         result += legval(cos_theta, coeffs)
@@ -182,7 +195,7 @@ def plot_spectrum(ells, cl_base, cl_model, cl_obs, sigma, outdir: str):
     ax.plot(ells, cl_base, "--", color="royalblue", label=r"Baseline $\Lambda$CDM")
     ax.plot(ells, cl_model, "-", color="tomato", label="V6.2 best-fit model")
     ax.set_xlabel(r"Multipole $\ell$")
-    ax.set_ylabel(r"$\ell(\ell+1)C_\ell / 2\pi$  [arbitrary units]")
+    ax.set_ylabel(r"$C_\ell$  [arbitrary units]")
     ax.set_title("Low-$\\ell$ TT Power Spectrum (V6.2 suppression)")
     ax.legend()
     ax.grid(True, alpha=0.3)
@@ -313,25 +326,24 @@ def main():
     # --- Observed data ---
     if args.csv is not None:
         ells_obs_int, cl_obs, sigma = load_observed_data(args.csv, ell_min, ell_max)
-        # Align baseline to observed ells
         ells = ells_obs_int.astype(float)
-        cl_base = generate_toy_baseline(ell_min, ell_max)
-        # Re-index baseline to observed ell subset
         base_all = {int(e): c for e, c in zip(np.arange(ell_min, ell_max + 1), generate_toy_baseline(ell_min, ell_max))}
         cl_base = np.array([base_all[int(e)] for e in ells])
         cl_obs_arr = cl_obs
         sigma_arr = sigma
         print(f"Loaded {len(ells)} data points from '{args.csv}'.")
     else:
-        # Use toy baseline as mock observed data with cosmic-variance noise
         cl_obs_arr = cl_base.copy()
         sigma_arr = cosmic_variance_sigma(ells, cl_obs_arr)
         print("No CSV provided — using toy baseline as mock observed data.")
+        print("Toy mode reminder: this is a smoke test only; chi-squared and AIC/BIC are not physically informative.")
 
-    # Baseline chi-squared (no suppression, i.e. model == baseline)
     chi2_base = chi_squared(cl_base, cl_obs_arr, sigma_arr)
+    n_points = len(ells)
+    n_params_baseline = 0
+    n_params_v62 = 3
+    aic_base, bic_base = information_criteria(chi2_base, n_points, n_params_baseline)
 
-    # --- Grid scan ---
     f_lss_vals = np.linspace(args.f_lss_min, args.f_lss_max, args.f_lss_n)
     ell_ir_vals = np.linspace(args.ell_ir_min, args.ell_ir_max, args.ell_ir_n)
     p_vals = np.linspace(args.p_min, args.p_max, args.p_n)
@@ -343,25 +355,30 @@ def main():
     )
     chi2_grid, best = grid_scan(ells, cl_base, cl_obs_arr, sigma_arr, f_lss_vals, ell_ir_vals, p_vals)
 
-    # --- Best-fit model ---
     s_best = suppression_kernel(ells, best["f_lss"], best["ell_ir"], best["p"])
     cl_best = apply_suppression(cl_base, s_best)
 
-    # --- Print results ---
+    aic_best, bic_best = information_criteria(best["chi2"], n_points, n_params_v62)
+
     print("\n" + "=" * 50)
     print("RESULTS")
     print("=" * 50)
     print(f"  ell range          : {ell_min} - {ell_max}")
-    print(f"  Data points (N)    : {len(ells)}")
+    print(f"  Data points (N)    : {n_points}")
     print(f"  Baseline chi2      : {chi2_base:.3f}")
     print(f"  Best-fit chi2      : {best['chi2']:.3f}")
     print(f"  Delta chi2         : {best['chi2'] - chi2_base:.3f}")
+    print(f"  Baseline AIC       : {aic_base:.3f}")
+    print(f"  Best-fit AIC       : {aic_best:.3f}")
+    print(f"  Delta AIC          : {aic_best - aic_base:.3f}")
+    print(f"  Baseline BIC       : {bic_base:.3f}")
+    print(f"  Best-fit BIC       : {bic_best:.3f}")
+    print(f"  Delta BIC          : {bic_best - bic_base:.3f}")
     print(f"  Best-fit f_LSS     : {best['f_lss']:.4f}")
     print(f"  Best-fit ell_IR    : {best['ell_ir']:.4f}")
     print(f"  Best-fit p         : {best['p']:.4f}")
     print("=" * 50)
 
-    # --- Plots ---
     print("\nSaving plots ...")
     plot_spectrum(ells, cl_base, cl_best, cl_obs_arr, sigma_arr, args.outdir)
     plot_suppression_kernel(ells, best["f_lss"], best["ell_ir"], best["p"], args.outdir)
