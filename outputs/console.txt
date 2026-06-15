@@ -1,4 +1,3 @@
-python fit_cmb_lowell_v62.py lowell_tt_mock_extended.csv
 n_points=29
 best_f_lss=0.448622
 best_ell_ir=10.000000
