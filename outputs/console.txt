@@ -1,7 +1,8 @@
-(cptenv) D:\CPT>python fit_cmb_lowell_v62.py --csv lowell_mock.csv --outdir outputs
+(cptenv) D:\CPT>python fit_cmb_lowell_v62.py --csv lowell_mock.csv --fixed-p 5 --outdir outputs_fixed_p5
 Loaded 29 data points from 'lowell_mock.csv'.
+Reduced scan: fixed p = 5.0
 
-Grid scan: f_LSS x ell_IR x p = 20 x 19 x 9 = 3420 evaluations ...
+Grid scan: f_LSS x ell_IR x p = 20 x 19 x 1 = 380 evaluations ...
 
 ==================================================
 RESULTS
@@ -12,20 +13,22 @@ RESULTS
   Best-fit chi2      : 0.353
   Delta chi2         : -3.847
   Baseline AIC       : 4.201
-  Best-fit AIC       : 6.353
-  Delta AIC          : 2.153
+  Best-fit AIC       : 4.353
+  Delta AIC          : 0.153
   Baseline BIC       : 4.201
-  Best-fit BIC       : 10.455
-  Delta BIC          : 6.255
+  Best-fit BIC       : 7.088
+  Delta BIC          : 2.887
+  Effective V6.2 k   : 2
   Best-fit f_LSS     : 0.5921
   Best-fit ell_IR    : 4.0000
   Best-fit p         : 5.0000
 ==================================================
 
 Saving plots ...
-  Saved: outputs\lowell_spectrum.png
-  Saved: outputs\suppression_kernel.png
-  Saved: outputs\chisq_heatmap.png
-  Saved: outputs\angular_correlation.png
+  Saved: outputs_fixed_p5\lowell_spectrum.png
+  Saved: outputs_fixed_p5\suppression_kernel.png
+  Saved: outputs_fixed_p5\chisq_heatmap.png
+  Saved: outputs_fixed_p5\angular_correlation.png
 
 Done.
+
