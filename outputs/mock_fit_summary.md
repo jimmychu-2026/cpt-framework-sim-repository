@@ -14,6 +14,7 @@ The mock input data are provided in:
 
 - `lowell_mock.csv`
 - `lowell_tt_mock_extended.csv`
+- `lowell_tt_realistic.csv`
 
 These tests are **not** based on the full Planck low-ℓ likelihood. They are preliminary consistency checks using a simplified toy baseline and a simple chi-squared comparison.
 
@@ -46,13 +47,22 @@ where:
 | 2-parameter reduced scan (`p = 5`) | 2 | 0.5921 | 4.0000 | 5.0000 | 4.201 | 0.353 | -3.847 | +0.153 | +2.887 |
 | 1-parameter constrained template (`p = 5`, `ell_IR = 4`) | 1 | 0.5921 | 4.0000 | 5.0000 | 4.201 | 0.353 | -3.847 | -1.847 | -0.480 |
 
-### Latest console-based mock fit results
+### Console result from the broader mock dataset
 
 | Model version | Effective parameters k | Best-fit f_LSS | Best-fit ell_IR | Best-fit p | Baseline chi2 | Best-fit chi2 | Delta chi2 | Delta AIC | Delta BIC |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 3-parameter free scan | 3 | 0.448622 | 10.000000 | 1.000000 | 0.333044 | 0.030462 | -0.302581 | +5.697 | +9.799 |
-| 2-parameter reduced scan (`p = 5`) | 2 | 0.363409 | 10.000000 | 5.000000 | 0.333044 | 0.210781 | -0.122263 | +4.211 | +6.945 |
-| 1-parameter constrained template (`p = 5`, `ell_IR = 4`) | 1 | 0.368421 | 4.000000 | 5.000000 | 0.333044 | 0.301929 | -0.031114 | +2.302 | +3.669 |
+| 3-parameter free scan | 3 | 0.273183 | 10.000000 | 1.150000 | 5.595672 | 0.288643 | -5.307028 | +6.289 | +10.391 |
+| 2-parameter reduced scan (`p = 5`) | 2 | 0.248120 | 10.000000 | 5.000000 | 5.595672 | 1.634128 | -3.961543 | +5.634 | +8.369 |
+| 1-parameter constrained template (`p = 5`, `ell_IR = 4`) | 1 | 0.258145 | 4.000000 | 5.000000 | 5.595672 | 4.356493 | -1.239179 | +6.356 | +7.724 |
+
+### Shape implication from the latest fit
+
+The latest console output indicates the best-fit region lies at:
+
+- relatively **large `ell_IR`**
+- relatively **small `p`** in the fully free scan
+
+This points to a **broader, flatter suppression kernel** than the earlier toy example.
 
 ---
 
@@ -61,24 +71,24 @@ where:
 ### 1. Three-parameter free model
 The fully free model improves the fit at the chi-squared level:
 
-- `Delta chi2 = -0.302581`
+- `Delta chi2 = -5.307028`
 
 However, once the extra parameter cost is included, both AIC and BIC worsen:
 
-- `Delta AIC = +5.697`
-- `Delta BIC = +9.799`
+- `Delta AIC = +6.289`
+- `Delta BIC = +10.391`
 
-This means the free 3-parameter phenomenological version is still **too flexible** relative to the modest improvement it buys.
+This means the free 3-parameter phenomenological version is still **too flexible** relative to the improvement it buys.
 
 ### 2. Two-parameter reduced model
 Fixing `p = 5` changes the best-fit values and preserves a fit improvement:
 
-- `Delta chi2 = -0.122263`
+- `Delta chi2 = -3.961543`
 
 Even so, the information-criterion penalty remains substantial:
 
-- `Delta AIC = +4.211`
-- `Delta BIC = +6.945`
+- `Delta AIC = +5.634`
+- `Delta BIC = +8.369`
 
 This version remains **disfavored** relative to the baseline for the current mock dataset.
 
@@ -90,22 +100,19 @@ Fixing both:
 
 and allowing only `f_LSS` to vary gives a smaller improvement:
 
-- `Delta chi2 = -0.031114`
+- `Delta chi2 = -1.239179`
 
 The corresponding information-criterion penalties are still positive:
 
-- `Delta AIC = +2.302`
-- `Delta BIC = +3.669`
+- `Delta AIC = +6.356`
+- `Delta BIC = +7.724`
 
 So, for this newer mock dataset, the constrained template is **not yet preferred** by AIC/BIC.
 
-### 4. Shape implication from the latest fit
-The latest console output indicates the best-fit region lies at:
+### 4. Comparison across datasets
+The earlier toy mock favored a tightly constrained template, whereas the newer broader dataset favors a wider IR suppression shape in the free scan but does not yet provide information-criterion support for the template forms.
 
-- relatively **large `ell_IR`**
-- relatively **small `p`** in the fully free scan
-
-This points to a **broader, flatter suppression kernel** than the earlier toy example.
+This indicates that the preferred shape is **dataset-dependent** and that the template family should be scanned over a broader range before drawing a stronger conclusion.
 
 ---
 
@@ -114,8 +121,8 @@ This points to a **broader, flatter suppression kernel** than the earlier toy ex
 The mock tests suggest the following:
 
 1. The V6.2 low-ℓ suppression kernel can reproduce an anomaly-like low-ℓ pattern.
-2. The best-fit region is stable enough to indicate a broad IR suppression tendency, but the preferred shape depends on the mock dataset used.
-3. The strongest support in the earlier toy exercise appeared for a fixed-template form, whereas the latest console result favors a **wider, shallower kernel**.
+2. The best-fit region depends on the dataset, but the latest broader mock fit favors a wider and shallower suppression shape.
+3. The earlier toy exercise supported a fixed-template form, whereas the latest broader dataset does not yet deliver information-criterion support for either the reduced or constrained forms.
 4. The current evidence remains suggestive only; it does **not** establish preference over baseline in the latest mock dataset.
 
 A concise statement is:
