@@ -51,8 +51,8 @@ where:
 | Model version | Effective parameters k | Best-fit f_LSS | Best-fit ell_IR | Best-fit p | Baseline chi2 | Best-fit chi2 | Delta chi2 | Delta AIC | Delta BIC |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | 3-parameter free scan | 3 | 0.448622 | 10.000000 | 1.000000 | 0.333044 | 0.030462 | -0.302581 | +5.697 | +9.799 |
-| 2-parameter reduced scan (`p = 5`) | 2 | 0.448622 | 10.000000 | 1.000000 | 0.333044 | 0.030462 | -0.302581 | +3.697 | +6.697 |
-| 1-parameter constrained template (`p = 5`, `ell_IR = 4`) | 1 | 0.448622 | 10.000000 | 1.000000 | 0.333044 | 0.030462 | -0.302581 | +1.697 | +3.242 |
+| 2-parameter reduced scan (`p = 5`) | 2 | 0.363409 | 10.000000 | 5.000000 | 0.333044 | 0.210781 | -0.122263 | +4.211 | +6.945 |
+| 1-parameter constrained template (`p = 5`, `ell_IR = 4`) | 1 | 0.368421 | 4.000000 | 5.000000 | 0.333044 | 0.301929 | -0.031114 | +2.302 | +3.669 |
 
 ---
 
@@ -71,12 +71,14 @@ However, once the extra parameter cost is included, both AIC and BIC worsen:
 This means the free 3-parameter phenomenological version is still **too flexible** relative to the modest improvement it buys.
 
 ### 2. Two-parameter reduced model
-Fixing `p = 5` preserves the same best-fit location and the same fit improvement, while reducing the information-criterion penalty.
+Fixing `p = 5` changes the best-fit values and preserves a fit improvement:
 
-Even so:
+- `Delta chi2 = -0.122263`
 
-- `Delta AIC = +3.697`
-- `Delta BIC = +6.697`
+Even so, the information-criterion penalty remains substantial:
+
+- `Delta AIC = +4.211`
+- `Delta BIC = +6.945`
 
 This version remains **disfavored** relative to the baseline for the current mock dataset.
 
@@ -86,12 +88,14 @@ Fixing both:
 - `p = 5`
 - `ell_IR = 4`
 
-and allowing only `f_LSS` to vary yields the same chi-squared improvement while reducing the complexity penalty.
+and allowing only `f_LSS` to vary gives a smaller improvement:
 
-Even with that reduction, the current console fit still gives positive information-criterion penalties:
+- `Delta chi2 = -0.031114`
 
-- `Delta AIC = +1.697`
-- `Delta BIC = +3.242`
+The corresponding information-criterion penalties are still positive:
+
+- `Delta AIC = +2.302`
+- `Delta BIC = +3.669`
 
 So, for this newer mock dataset, the constrained template is **not yet preferred** by AIC/BIC.
 
@@ -99,7 +103,7 @@ So, for this newer mock dataset, the constrained template is **not yet preferred
 The latest console output indicates the best-fit region lies at:
 
 - relatively **large `ell_IR`**
-- relatively **small `p`**
+- relatively **small `p`** in the fully free scan
 
 This points to a **broader, flatter suppression kernel** than the earlier toy example.
 
