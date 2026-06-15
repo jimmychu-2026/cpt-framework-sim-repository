@@ -5,7 +5,8 @@ Preliminary phenomenological prototype for a minimal viable CMB low-ell fit
 within the V6.2 CPT-Curvature framework.
 
 This script implements a simple IR-suppression model for the low-multipole
-TT power spectrum and performs a coarse grid scan over three free parameters:
+TT power spectrum and performs a coarse grid scan over suppression parameters.
+By default it scans three free parameters:
   f_LSS   - overall suppression amplitude linked to the LSS projection factor
   ell_IR  - IR transition multipole (pivot scale)
   p       - transition sharpness exponent
@@ -49,7 +50,7 @@ def generate_toy_baseline(ell_min: int, ell_max: int) -> np.ndarray:
     scaled so that C_2 ~ 1000 (arbitrary units consistent with mu K^2 order).
     """
     ells = np.arange(ell_min, ell_max + 1, dtype=float)
-    A = 1000.0 * 2.0**0.1 * np.exp(2.0 / 300.0)  # normalise so C_2 ~ 1000
+    A = 1000.0 * 2.0**0.1 * np.exp(2.0 / 300.0)
     cl_base = A * ells**(-0.1) * np.exp(-ells / 300.0)
     return cl_base
 
@@ -67,16 +68,12 @@ def load_observed_data(csv_path: str, ell_min: int, ell_max: int):
     if "sigma" in data.dtype.names:
         sigma = data["sigma"][mask]
     else:
-        # Cosmic-variance-inspired approximation
         sigma = np.sqrt(2.0 / (2.0 * ells + 1.0)) * cl_obs
     return ells, cl_obs, sigma
 
 
 def cosmic_variance_sigma(ells: np.ndarray, cl: np.ndarray) -> np.ndarray:
-    """Estimate uncertainty using the cosmic variance approximation.
-
-    sigma_ell = sqrt(2 / (2*ell + 1)) * C_ell
-    """
+    """Estimate uncertainty using the cosmic variance approximation."""
     return np.sqrt(2.0 / (2.0 * ells + 1.0)) * cl
 
 
@@ -85,19 +82,12 @@ def cosmic_variance_sigma(ells: np.ndarray, cl: np.ndarray) -> np.ndarray:
 # ---------------------------------------------------------------------------
 
 def suppression_kernel(ells: np.ndarray, f_lss: float, ell_ir: float, p: float) -> np.ndarray:
-    """Compute the V6.2 IR suppression kernel.
-
-    S_ell = f_LSS**2 / (1 + (ell / ell_IR)**p)
-    """
+    """Compute the V6.2 IR suppression kernel."""
     return f_lss**2 / (1.0 + (ells / ell_ir) ** p)
 
 
 def apply_suppression(cl_base: np.ndarray, s_ell: np.ndarray) -> np.ndarray:
-    """Apply the suppression kernel to the baseline spectrum.
-
-    C_ell_model = C_ell_base * (1 - S_ell)
-    Clamps output to zero to avoid unphysical negative values.
-    """
+    """Apply the suppression kernel to the baseline spectrum."""
     return np.maximum(cl_base * (1.0 - s_ell), 0.0)
 
 
@@ -111,12 +101,7 @@ def chi_squared(cl_model: np.ndarray, cl_obs: np.ndarray, sigma: np.ndarray) -> 
 
 
 def information_criteria(chi2: float, n_points: int, n_params: int) -> tuple[float, float]:
-    """Return (AIC, BIC) for a model.
-
-    AIC = chi2 + 2k
-    BIC = chi2 + k ln(N)
-    where k is the number of fitted parameters and N is the number of data points.
-    """
+    """Return (AIC, BIC) for a model."""
     aic = float(chi2 + 2.0 * n_params)
     bic = float(chi2 + n_params * math.log(n_points))
     return aic, bic
@@ -135,11 +120,7 @@ def grid_scan(
     ell_ir_vals: np.ndarray,
     p_vals: np.ndarray,
 ):
-    """Perform a coarse grid scan over (f_LSS, ell_IR, p).
-
-    Returns a dict with shape (n_f, n_ir, n_p) chi-squared array and
-    the index and values of the best-fit point.
-    """
+    """Perform a grid scan over (f_LSS, ell_IR, p)."""
     n_f = len(f_lss_vals)
     n_ir = len(ell_ir_vals)
     n_p = len(p_vals)
@@ -152,7 +133,6 @@ def grid_scan(
                 cl_model = apply_suppression(cl_base, s_ell)
                 chi2_grid[i, j, k] = chi_squared(cl_model, cl_obs, sigma)
 
-    # Best-fit location
     idx = np.unravel_index(np.argmin(chi2_grid), chi2_grid.shape)
     best = {
         "f_lss": float(f_lss_vals[idx[0]]),
@@ -169,12 +149,7 @@ def grid_scan(
 # ---------------------------------------------------------------------------
 
 def angular_correlation(cl_values: np.ndarray, ells: np.ndarray, theta_deg: np.ndarray) -> np.ndarray:
-    """Compute the angular two-point correlation function C(theta).
-
-    C(theta) = (1/4*pi) * sum_ell (2*ell+1) * C_ell * P_ell(cos(theta))
-
-    Uses numpy's Legendre polynomial evaluation.
-    """
+    """Compute the angular two-point correlation function C(theta)."""
     cos_theta = np.cos(np.radians(theta_deg))
     result = np.zeros_like(cos_theta)
     for ell, cl in zip(ells, cl_values):
@@ -288,7 +263,6 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ell-min", type=int, default=2, help="Minimum multipole (default: 2)")
     parser.add_argument("--ell-max", type=int, default=30, help="Maximum multipole (default: 30)")
 
-    # Scan ranges
     parser.add_argument("--f-lss-min", type=float, default=0.01, help="Min f_LSS (default: 0.01)")
     parser.add_argument("--f-lss-max", type=float, default=0.80, help="Max f_LSS (default: 0.80)")
     parser.add_argument("--f-lss-n", type=int, default=20, help="Number of f_LSS grid points (default: 20)")
@@ -300,6 +274,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--p-min", type=float, default=2.0, help="Min p exponent (default: 2.0)")
     parser.add_argument("--p-max", type=float, default=10.0, help="Max p exponent (default: 10.0)")
     parser.add_argument("--p-n", type=int, default=9, help="Number of p grid points (default: 9)")
+
+    parser.add_argument("--fixed-p", type=float, default=None, help="Fix p to a single value and do a reduced-parameter scan")
+    parser.add_argument("--fixed-ell-ir", type=float, default=None, help="Fix ell_IR to a single value and do a reduced-parameter scan")
 
     parser.add_argument(
         "--outdir", default=".",
@@ -320,10 +297,8 @@ def main():
     ell_max = args.ell_max
     ells = np.arange(ell_min, ell_max + 1, dtype=float)
 
-    # --- Baseline spectrum ---
     cl_base = generate_toy_baseline(ell_min, ell_max)
 
-    # --- Observed data ---
     if args.csv is not None:
         ells_obs_int, cl_obs, sigma = load_observed_data(args.csv, ell_min, ell_max)
         ells = ells_obs_int.astype(float)
@@ -340,18 +315,29 @@ def main():
 
     chi2_base = chi_squared(cl_base, cl_obs_arr, sigma_arr)
     n_points = len(ells)
-    n_params_baseline = 0
-    n_params_v62 = 3
-    aic_base, bic_base = information_criteria(chi2_base, n_points, n_params_baseline)
+    aic_base, bic_base = information_criteria(chi2_base, n_points, 0)
 
     f_lss_vals = np.linspace(args.f_lss_min, args.f_lss_max, args.f_lss_n)
     ell_ir_vals = np.linspace(args.ell_ir_min, args.ell_ir_max, args.ell_ir_n)
     p_vals = np.linspace(args.p_min, args.p_max, args.p_n)
 
+    if args.fixed_p is not None:
+        p_vals = np.array([args.fixed_p], dtype=float)
+        print(f"Reduced scan: fixed p = {args.fixed_p}")
+    if args.fixed_ell_ir is not None:
+        ell_ir_vals = np.array([args.fixed_ell_ir], dtype=float)
+        print(f"Reduced scan: fixed ell_IR = {args.fixed_ell_ir}")
+
+    n_params_v62 = 3
+    if args.fixed_p is not None:
+        n_params_v62 -= 1
+    if args.fixed_ell_ir is not None:
+        n_params_v62 -= 1
+
     print(
         f"\nGrid scan: f_LSS x ell_IR x p = "
-        f"{args.f_lss_n} x {args.ell_ir_n} x {args.p_n} = "
-        f"{args.f_lss_n * args.ell_ir_n * args.p_n} evaluations ..."
+        f"{len(f_lss_vals)} x {len(ell_ir_vals)} x {len(p_vals)} = "
+        f"{len(f_lss_vals) * len(ell_ir_vals) * len(p_vals)} evaluations ..."
     )
     chi2_grid, best = grid_scan(ells, cl_base, cl_obs_arr, sigma_arr, f_lss_vals, ell_ir_vals, p_vals)
 
@@ -374,6 +360,7 @@ def main():
     print(f"  Baseline BIC       : {bic_base:.3f}")
     print(f"  Best-fit BIC       : {bic_best:.3f}")
     print(f"  Delta BIC          : {bic_best - bic_base:.3f}")
+    print(f"  Effective V6.2 k   : {n_params_v62}")
     print(f"  Best-fit f_LSS     : {best['f_lss']:.4f}")
     print(f"  Best-fit ell_IR    : {best['ell_ir']:.4f}")
     print(f"  Best-fit p         : {best['p']:.4f}")
