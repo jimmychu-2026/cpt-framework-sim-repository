@@ -224,10 +224,11 @@ S_\ell=\frac{f_{LSS}^2}{1+(\ell/\ell_{IR})^p},
 \qquad
 C_\ell^{model}=C_\ell^{base}(1-S_\ell).
 $$
-- 根據 `outputs/console.txt` 的最新輸出，29 個有效點的自由搜尋得到：$f_{LSS}=0.448622$、$\ell_{IR}=10.000000$、$p=1.000000$，baseline $\chi^2=0.333044$，best-fit $\chi^2=0.030462$，因此 $\Delta\chi^2=-0.302581$，AIC = 6.030462，BIC = 10.132350。
-- 這表示在目前這組更接近實際 low-$\ell$ TT 的 mock 資料上，最佳形狀偏向**較寬的低階抑制核**（較大的 $\ell_{IR}$ 與較小的 $p$），而不是先前 toy 版本中較尖銳的模板。
-- 與前一輪較理想化的 mock 比較不同，這份結果提醒我們：若要更貼近真實資料，應把模板族從單一固定形狀擴展為一個可掃描的寬核區間，並保留對 $p$ 與 $\ell_{IR}$ 的資料驅動彈性。
-- 此結果目前仍屬於 toy-baseline 與 mock-data 層級的一致性檢查；它顯示的是「低-$\ell$ 抑制可以被更寬的模板捕捉」，而不是已對真實 Planck likelihood 形成定論。
+- 根據 `outputs/console.txt` 的最新輸出，29 個有效點的自由搜尋得到：
+  $f_{LSS}=0.448622$、$\ell_{IR}=10.000000$、$p=1.000000$，baseline $\chi^2=0.333044$，best-fit $\chi^2=0.030462$，因此 $\Delta\chi^2=-0.302581$，AIC = 6.030462，BIC = 10.132350。
+- 此結果顯示，在目前這組更接近實際 low-$\ell$ TT 的 mock 資料上，最佳形狀偏向**較寬的低階抑制核**，即較大的 $\ell_{IR}$ 與較小的 $p$。
+- 相較於先前較理想化的 toy 版本，這表示後續模板搜尋應將重點放在更平坦、尺度更寬的 IR 抑制區域，而非僅限於較尖銳的低-$\ell$ 形狀。
+- 這仍屬於 toy-baseline 與 mock-data 層級的一致性檢查；其意義在於指出 low-$\ell$ 抑制可由較寬模板捕捉，而非已對真實 Planck likelihood 作出定論。
 
 #### **附：mock low-$\ell$ 原型測試摘要表**
 
@@ -379,4 +380,65 @@ $$
 ### 10.5 軸排列
 若 $\phi$ 場提供唯一優選方向 $\hat n_\phi = \nabla\phi/|\nabla\phi|$，則 low-$\ell$ 模式可能產生共同主軸排列。最小調制可寫為：
 $$
-\mathcal{A}(k,\hat k)=\alpha_a f(R_\ast)\frac{c_5\dot\phi_\ast}{M_\phi}P_2(\hat k	runcated due to length
+\mathcal{A}(k,\hat k)=\alpha_a f(R_\ast)\frac{c_5\dot\phi_\ast}{M_\phi}P_2(\hat k\cdot \hat n_\phi)
+$$
+因此軸排列統計量應滿足：
+$$
+\mathcal{A}_{align} \propto f(R_\ast)\frac{c_5|\dot\phi_\ast|}{M_\phi} \sim f(R_\ast)|b_{0,\ast}|
+$$
+這也意味著：**四極抑制與軸排列應是同源現象，而非彼此獨立巧合。**
+
+### 10.6 大尺度相關性缺失
+兩點相關函數可寫為：
+$$
+C(\theta)=C_{\Lambda CDM}(\theta)[1-\epsilon_{corr}(\theta)] + C_{noise}(\theta)
+$$
+其中在大角尺度：
+$$
+\epsilon_{corr}(\theta) \approx f^2(R_\ast)\Theta(\theta-\theta_{IR})K(\theta)
+$$
+故有近似關係：
+$$
+\frac{C(\theta)}{C_{\Lambda CDM}(\theta)} \approx 1-f^2(R_\ast)K(\theta), \qquad \theta\gtrsim \theta_{IR}
+$$
+此即大尺度溫度相關性缺失的候選機制：**不是擾動完全消失，而是 CPT 對稱相干部分在 IR 上被系統性扣除。**
+
+### 10.7 與暗能量量級的定性相容性
+V6.2 的重要價值在於它不另起一套耦合。下列量都由同一 $f(R)$ 控制：
+- 今日暗能量：$\rho_{DE,0}\sim 4\pi f^2(R_0)M_{Pl}^2H_0^2$
+- 冷斑深度：$|\delta T/T|_{cold}\propto f(R_\ast)$
+- 四極抑制：$\propto f^2(R_\ast)$
+- 軸排列：$\propto f(R_\ast)|b_{0,\ast}|$
+- 相關缺失：$\propto f^2(R_\ast)$
+
+因此，晚期 $w(z)$ 與早期 low-$\ell$ 異常在原理上可被聯合證偽。若擬合同一組參數時無法兼容，則此統合方案即失敗。
+
+### 10.8 可證偽預測
+1. $C_2^{TT}$ 應相對標準模型呈現與 $f^2(R_\ast)$ 成正比的抑制。
+2. 大角相關缺失應集中在 $\theta\gtrsim \theta_{IR}$，而非所有角尺度均勻下降。
+3. 軸排列若存在，其優選方向應與 $\hat n_\phi$ 的投影相關。
+4. 冷斑 abundance 與深度應受同一 $f(R_\ast)$ 控制，不能任意獨立調參。
+5. 若未來精確資料顯示 low-$\ell$ 異常與晚期暗能量所需參數完全脫鉤，則 V6.2 被否證。
+
+### 10.9 當前限制
+- $\mathcal{I}_\ell$、$K(\theta)$、$\mathcal{G}$ 尚未完成數值化
+- 尚未納入完整 ISW 與 Boltzmann transfer function 修正
+- 背景方程與擾動方程在 LSS 之適用域需更細分
+- 此段目前仍是候選機制的整合理論，尚非完整數值證實結果
+
+### 10.10 數值原型支持
+- 為了將第十節的 IR 邊界層敘事與實際可擬合的 low-$\ell$ 形狀連結，已對 mock TT 資料執行一組 prototype 級數值測試，採用最小抑制模板
+$$
+S_\ell=\frac{f_{LSS}^2}{1+(\ell/\ell_{IR})^p}.
+$$
+- 根據 `outputs/console.txt` 的最新輸出，29 個有效點的自由搜尋得到：
+  $f_{LSS}=0.448622$、$\ell_{IR}=10.000000$、$p=1.000000$，baseline $\chi^2=0.333044$，best-fit $\chi^2=0.030462$，因此 $\Delta\chi^2=-0.302581$，AIC = 6.030462，BIC = 10.132350。
+- 這表示在目前 mock 資料下，最佳擬合對應的是**較寬的 IR 抑制模板**，即較大的 $\ell_{IR}$ 與較小的 $p$；因此，第十節所主張的 low-$\ell$ 幾何殘差，較適合用較平坦的模板族去描述。
+- 與先前較尖銳的 toy 模板相比，這一結果提醒我們後續應擴大 $p$ 與 $\ell_{IR}$ 的掃描範圍，以檢查是否存在與此 best-fit 相近的更廣闊谷底。
+- 這仍是 toy-baseline 與 mock-data 層級的初步一致性檢查；它支持的是「low-$\ell$ 抑制可由寬核模板捕捉」這一方向，而非對真實 Planck likelihood 的終局判定。
+
+---
+
+**文件編製者**：jimmychu-2026  
+**最後更新**：2026-06-15  
+**版本狀態**：V6.2 完整統合版（已整合 CMB 補充稿）
