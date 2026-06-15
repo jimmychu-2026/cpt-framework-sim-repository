@@ -1,161 +1,119 @@
-# Grid Scan Results – lowell_mock.csv
+# Mock Fit Summary for V6.2 Low-ℓ Prototype
 
-| 項目              | 數值/描述            |
-|-------------------|----------------------|
-| ell range         | 2 – 30               |
-| Data points (N)   | 29                   |
-| Baseline χ²       | 4.201                |
-| Best-fit χ²       | 0.353                |
-| Δχ²               | -3.847               |
-| Best-fit f_LSS    | 0.5921               |
-| Best-fit ell_IR   | 4.0000               |
-| Best-fit p        | 5.0000               |
+## Overview
 
----
+This note summarizes three mock-data tests of the phenomenological low-ℓ suppression model implemented in `fit_cmb_lowell_v62.py`.
 
-**Interpretation** : Δχ² = -3.847 → significant improvement  
-**Limitations**    : prototype pretest  
-**Evaluations**    : 3420 (20 × 19 × 9)
+The goal is to compare:
 
+1. A fully free **3-parameter** suppression model
+2. A reduced **2-parameter** model with fixed `p = 5`
+3. A constrained **1-parameter template** with fixed `p = 5` and fixed `ell_IR = 4`
 
-# Grid Scan Results – lowell_mock.csv
+The mock input data are provided in:
 
-## Command
-python fit_cmb_lowell_v62.py --csv lowell_mock.csv --outdir outputs
-Loaded 29 data points from 'lowell_mock.csv'.
+- `lowell_mock.csv`
 
-## Scan Parameters
-- Grid scan: f_LSS × ell_IR × p = 20 × 19 × 9 = **3420 evaluations**
+These tests are **not** based on the full Planck low-ℓ likelihood. They are preliminary consistency checks using a simplified toy baseline and a simple chi-squared comparison.
 
 ---
 
-## Results
+## Suppression Model
 
-| 項目              | 數值/描述   |
-|-------------------|-------------|
-| ell range         | 2 – 30      |
-| Data points (N)   | 29          |
-| Baseline χ²       | 4.201       |
-| Best-fit χ²       | 0.353       |
-| Δχ²               | -3.847      |
-| Baseline AIC      | 4.201       |
-| Best-fit AIC      | 6.353       |
-| ΔAIC              | 2.153       |
-| Baseline BIC      | 4.201       |
-| Best-fit BIC      | 10.455      |
-| ΔBIC              | 6.255       |
-| Best-fit f_LSS    | 0.5921      |
-| Best-fit ell_IR   | 4.0000      |
-| Best-fit p        | 5.0000      |
+The phenomenological V6.2 suppression kernel is:
+
+```text
+S_ell = f_LSS^2 / (1 + (ell / ell_IR)^p)
+C_ell_model = C_ell_base * (1 - S_ell)
+```
+
+where:
+
+- `f_LSS` is the overall low-ℓ suppression amplitude
+- `ell_IR` is the IR transition scale
+- `p` controls transition sharpness
 
 ---
 
-## Outputs
-- Saved: `outputs\lowell_spectrum.png`  
-- Saved: `outputs\suppression_kernel.png`  
-- Saved: `outputs\chisq_heatmap.png`  
-- Saved: `outputs\angular_correlation.png`
+## Test Results
+
+| Model version | Effective parameters k | Best-fit f_LSS | Best-fit ell_IR | Best-fit p | Baseline chi2 | Best-fit chi2 | Delta chi2 | Delta AIC | Delta BIC |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 3-parameter free scan | 3 | 0.5921 | 4.0000 | 5.0000 | 4.201 | 0.353 | -3.847 | +2.153 | +6.255 |
+| 2-parameter reduced scan (`p = 5`) | 2 | 0.5921 | 4.0000 | 5.0000 | 4.201 | 0.353 | -3.847 | +0.153 | +2.887 |
+| 1-parameter constrained template (`p = 5`, `ell_IR = 4`) | 1 | 0.5921 | 4.0000 | 5.0000 | 4.201 | 0.353 | -3.847 | -1.847 | -0.480 |
 
 ---
 
-## Notes
-- Interpretation: Δχ² = -3.847 → significant improvement  
-- Limitations: prototype pretest  
-- Evaluations: 3420 (20 × 19 × 9)
+## Interpretation
 
+### 1. Three-parameter free model
+The fully free model improves the fit substantially at the chi-squared level:
 
-# Grid Scan Results – lowell_mock.csv (fixed p = 5)
+- `Delta chi2 = -3.847`
 
-## Command
-python fit_cmb_lowell_v62.py --csv lowell_mock.csv --fixed-p 5 --outdir outputs_fixed_p5
-Loaded 29 data points from 'lowell_mock.csv'.
-Reduced scan: fixed p = 5.0
+However, once the extra parameter cost is included, both AIC and BIC worsen:
 
-## Scan Parameters
-- Grid scan: f_LSS × ell_IR × p = 20 × 19 × 1 = **380 evaluations**
+- `Delta AIC = +2.153`
+- `Delta BIC = +6.255`
 
----
+This means that the free 3-parameter phenomenological version is **too flexible** relative to the improvement it buys.
 
-## Results
+### 2. Two-parameter reduced model
+Fixing `p = 5` preserves the same best-fit location and the same fit improvement, while reducing the information-criterion penalty.
 
-| 項目              | 數值/描述   |
-|-------------------|-------------|
-| ell range         | 2 – 30      |
-| Data points (N)   | 29          |
-| Baseline χ²       | 4.201       |
-| Best-fit χ²       | 0.353       |
-| Δχ²               | -3.847      |
-| Baseline AIC      | 4.201       |
-| Best-fit AIC      | 4.353       |
-| ΔAIC              | 0.153       |
-| Baseline BIC      | 4.201       |
-| Best-fit BIC      | 7.088       |
-| ΔBIC              | 2.887       |
-| Effective V6.2 k  | 2           |
-| Best-fit f_LSS    | 0.5921      |
-| Best-fit ell_IR   | 4.0000      |
-| Best-fit p        | 5.0000      |
+Even so:
 
----
+- `Delta AIC = +0.153`
+- `Delta BIC = +2.887`
 
-## Outputs
-- Saved: `outputs_fixed_p5\lowell_spectrum.png`  
-- Saved: `outputs_fixed_p5\suppression_kernel.png`  
-- Saved: `outputs_fixed_p5\chisq_heatmap.png`  
-- Saved: `outputs_fixed_p5\angular_correlation.png`
+This version is **close to competitive**, but still not clearly preferred over the baseline.
+
+### 3. One-parameter constrained template
+Fixing both:
+
+- `p = 5`
+- `ell_IR = 4`
+
+and allowing only `f_LSS` to vary yields the same chi-squared improvement while reducing the complexity penalty enough to reverse the model-selection verdict:
+
+- `Delta AIC = -1.847`
+- `Delta BIC = -0.480`
+
+This is the most promising result of the mock-data exercise.
 
 ---
 
-## Notes
-- Interpretation: Δχ² = -3.847 → significant improvement  
-- Limitations: prototype pretest  
-- Evaluations: 380 (20 × 19 × 1)
+## Main Conclusion
 
-# Grid Scan Results – lowell_mock.csv (fixed p = 5, fixed ell_IR = 4)
+The mock tests suggest the following:
 
-## Command
-python fit_cmb_lowell_v62.py --csv lowell_mock.csv --fixed-p 5 --fixed-ell-ir 4 --outdir outputs_fixed_p5_ell4
-Loaded 29 data points from 'lowell_mock.csv'.
-Reduced scan: fixed p = 5.0
-Reduced scan: fixed ell_IR = 4.0
+1. The V6.2 low-ℓ suppression kernel can reproduce an anomaly-like low-ℓ pattern.
+2. The best-fit region is stable across the free, reduced, and constrained scans.
+3. The strongest support appears when the suppression shape is treated as a **theory-motivated fixed template** and only the amplitude `f_LSS` is left free.
 
-## Scan Parameters
-- Grid scan: f_LSS × ell_IR × p = 20 × 1 × 1 = **20 evaluations**
+A concise statement is:
+
+> The V6.2 low-ℓ suppression ansatz appears viable in a constrained predictive form, but not yet in an unconstrained multi-parameter phenomenological form.
 
 ---
 
-## Results
+## Important Limitations
 
-| 項目              | 數值/描述   |
-|-------------------|-------------|
-| ell range         | 2 – 30      |
-| Data points (N)   | 29          |
-| Baseline χ²       | 4.201       |
-| Best-fit χ²       | 0.353       |
-| Δχ²               | -3.847      |
-| Baseline AIC      | 4.201       |
-| Best-fit AIC      | 2.353       |
-| ΔAIC              | -1.847      |
-| Baseline BIC      | 4.201       |
-| Best-fit BIC      | 3.721       |
-| ΔBIC              | -0.480      |
-| Effective V6.2 k  | 1           |
-| Best-fit f_LSS    | 0.5921      |
-| Best-fit ell_IR   | 4.0000      |
-| Best-fit p        | 5.0000      |
+These results should be interpreted cautiously:
+
+- The data are mock, not a full observational likelihood.
+- The baseline spectrum is a toy analytic spectrum, not CAMB/CLASS output.
+- The chi-squared is simplified and does not include a full covariance matrix.
+- The analysis uses only low-ℓ TT information.
+- The apparent preference in the 1-parameter case is therefore **suggestive**, not conclusive.
 
 ---
 
-## Outputs
-- Saved: `outputs_fixed_p5_ell4\lowell_spectrum.png`  
-- Saved: `outputs_fixed_p5_ell4\suppression_kernel.png`  
-- Saved: `outputs_fixed_p5_ell4\chisq_heatmap.png`  
-- Saved: `outputs_fixed_p5_ell4\angular_correlation.png`
+## Recommended Next Steps
 
----
-
-## Notes
-- Interpretation: Δχ² = -3.847 → significant improvement  
-- Limitations: prototype pretest  
-- Evaluations: 20 (20 × 1 × 1)
-
+1. Treat the 1-parameter template (`p = 5`, `ell_IR = 4`) as the primary demonstrator.
+2. Repeat the same test on a more realistic low-ℓ TT dataset.
+3. Replace the toy baseline with a proper ΛCDM reference spectrum.
+4. Extend the summary statistics to include angular-correlation suppression measures such as large-angle deficits.
+5. Only after those steps consider a more complete likelihood-based analysis.
