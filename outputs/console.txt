@@ -1,29 +1,29 @@
 n_points=29
-baseline_chi2=0.333044
+baseline_chi2=5.595672
 
 [3-parameter free scan]
-best_f_lss=0.448622
+best_f_lss=0.273183
 best_ell_ir=10.000000
-best_p=1.000000
-best_chi2=0.030462
-delta_chi2=-0.302581
-AIC=6.030462
-BIC=10.132350
+best_p=1.150000
+best_chi2=0.288643
+delta_chi2=-5.307028
+AIC=6.288643
+BIC=10.390531
 
 [2-parameter reduced scan (fixed p = 5)]
-best_f_lss=0.363409
+best_f_lss=0.248120
 best_ell_ir=10.000000
 best_p=5.000000
-best_chi2=0.210781
-delta_chi2=-0.122263
-AIC=4.210781
-BIC=6.945372
+best_chi2=1.634128
+delta_chi2=-3.961543
+AIC=5.634128
+BIC=8.368720
 
 [1-parameter constrained template (fixed p = 5, ell_IR = 4)]
-best_f_lss=0.368421
+best_f_lss=0.258145
 best_ell_ir=4.000000
 best_p=5.000000
-best_chi2=0.301929
-delta_chi2=-0.031114
-AIC=2.301929
-BIC=3.669225
+best_chi2=4.356493
+delta_chi2=-1.239179
+AIC=6.356493
+BIC=7.723788
